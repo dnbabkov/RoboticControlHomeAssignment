@@ -25,6 +25,7 @@ from pathlib import Path
 import mediapy as media
 import signal
 import sys
+import matplotlib.pyplot as plt
 
 class ActuatorMotor:
     """Base class for robot actuators.
@@ -123,6 +124,7 @@ class Simulator:
                  xml_path: str = "universal_robots_ur5e/scene.xml", 
                  dt: float = 0.002,
                  enable_task_space: bool = False,
+                 hard_code_trajectory: bool = False,
                  show_viewer: bool = True,
                  record_video: bool = False,
                  video_path: str = "logs/videos/simulation.mp4",
@@ -142,6 +144,7 @@ class Simulator:
             width: Video frame width
             height: Video frame height
         """
+        self.hard_code_traj = hard_code_trajectory
         self.model = mujoco.MjModel.from_xml_path(xml_path)
         self.data = mujoco.MjData(self.model)
         self.model.opt.timestep = dt
@@ -182,6 +185,15 @@ class Simulator:
         
         # Handle graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
+
+        self.q_history = []
+        self.dq_history = []
+        self.ddq_history = []
+
+        self.pose_errors_history = []
+        self.controls_history = []
+        self.ee_velocity_errors_history = []
+        self.ee_acceleration_errors_history = []
     
     def _setup_video_recording(self) -> None:
         """Setup video recording directory if enabled."""
@@ -307,6 +319,96 @@ class Simulator:
             controller: Function that computes control commands
         """
         self.controller = controller
+
+    def set_error_calc(self, error_func: Callable) -> None:
+        self.error_func = error_func
+
+    def plot_results(self, times: np.ndarray, positions: np.ndarray, velocities: np.ndarray, accelerations: np.ndarray, controls: np.ndarray):
+        """Plot and save simulation results."""
+        # Joint positions plot
+        plt.figure(figsize=(10, 6))
+        for i in range(positions.shape[1]):
+            plt.plot(times, positions[:, i], label=f'Joint {i+1}')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Joint Positions [rad]')
+        plt.title('Joint Positions over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Joint positions.png')
+        plt.close()
+
+        # Joint velocities plot
+        plt.figure(figsize=(10, 6))
+        for i in range(velocities.shape[1]):
+            plt.plot(times, velocities[:, i], label=f'Joint {i+1}')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Joint Velocities [rad/s]')
+        plt.title('Joint Velocities over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Joint velocities.png')
+        plt.close()
+
+        # Joint accelerations plot
+        plt.figure(figsize=(10, 6))
+        for i in range(velocities.shape[1]):
+            plt.plot(times, accelerations[:, i], label=f'Joint {i+1}')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Joint Accelerations [rad/s^2]')
+        plt.title('Joint Accelerations over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Joint accelerations.png')
+        plt.close()
+
+        # Controls plot
+        plt.figure(figsize=(10, 6))
+        for i in range(controls.shape[1]):
+            plt.plot(times, controls[:, i], label = f'Joint {i+1}')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Joint Controls')
+        plt.title('Joint Controls over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Controls.png')
+        plt.close()
+
+    def plot_convergence(self, times: np.ndarray, pose_errors: np.ndarray, dpose_errors: np.ndarray, ddpose_errors: np.ndarray):
+        # Joint positions plot
+        plt.figure(figsize=(10, 6))
+        for i in range(pose_errors.shape[1]):
+            plt.plot(times, pose_errors[:, i], label=f'Pose error {i+1} (1-3 — position, 4-6 — angle)')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Errors')
+        plt.title('Pose error over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Pose errors.png')
+        plt.close()
+
+        # Joint velocities plot
+        plt.figure(figsize=(10, 6))
+        for i in range(dpose_errors.shape[1]):
+            plt.plot(times, dpose_errors[:, i], label=f'Velocity error {i+1} (1-3 — tangential velocity, 4-6 — angular velocity)')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Errors')
+        plt.title('Velocity errors over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Endeffector velocity errors.png')
+        plt.close()
+
+        # Controls plot
+        plt.figure(figsize=(10, 6))
+        for i in range(ddpose_errors.shape[1]):
+            plt.plot(times, ddpose_errors[:, i], label = f'Acceleration error {i+1} (1-3 — tangential acceleration, 4-6 — angular acceleration)')
+        plt.xlabel('Time [s]')
+        plt.ylabel('Errors')
+        plt.title('Acceleration errors over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('logs/plots/Acceleration errors.png')
+        plt.close()
         
     def reset(self) -> None:
         """Reset the simulation to initial state using home keyframe."""
@@ -374,7 +476,7 @@ class Simulator:
             AssertionError: If controller is not set
         """
         assert self.controller is not None, "Controller not set!"
-        
+        times = []
         viewer = None
         if self.show_viewer:
             viewer = mujoco.viewer.launch_passive(
@@ -394,6 +496,7 @@ class Simulator:
             start_time = time.perf_counter()
             
             while (not viewer or viewer.is_running()):
+                times.append(t)
                 step_start = time.perf_counter()
                 
                 # Get state and compute control
@@ -404,19 +507,39 @@ class Simulator:
                     tau = self.controller(
                         q=state['q'],
                         dq=state['dq'],
+                        ddq = state['ddq'],
                         desired=state['desired'],
-                        t=t
+                        t=t,
+                        hard_code = self.hard_code_traj
                     )
                 else:
                     tau = self.controller(
                         q=state['q'],
                         dq=state['dq'],
-                        t=t
+                        #ddq = state['ddq'],
+                        t=t,
+                        hard_code = self.hard_code_traj
                     )
                 
                 # Step simulation
                 self.step(tau)
+
+                self.controls_history.append(tau)
+                self.q_history.append(state['q'])
+                self.dq_history.append(state['dq'])
+                self.ddq_history.append(state['ddq'])
+
+                pose_error, velocity_error, acceleration_error = self.error_func(q=state['q'],
+                                                                                 dq=state['dq'],
+                                                                                 ddq = state['ddq'],
+                                                                                 desired=state['desired'],
+                                                                                 t=t,
+                                                                                 hard_code = self.hard_code_traj)
                 
+                self.pose_errors_history.append(pose_error)
+                self.ee_velocity_errors_history.append(velocity_error)
+                self.ee_acceleration_errors_history.append(acceleration_error)
+
                 # Update visualization
                 if viewer:
                     viewer.sync()
@@ -444,3 +567,17 @@ class Simulator:
             if viewer:
                 viewer.close()
             self._save_video()
+
+            times = np.array(times)
+
+            self.pose_errors_history = np.array(self.pose_errors_history)
+            self.ee_velocity_errors_history = np.array(self.ee_velocity_errors_history)
+            self.ee_acceleration_errors_history = np.array(self.ee_acceleration_errors_history)
+            self.plot_convergence(times, self.pose_errors_history, self.ee_velocity_errors_history, self.ee_acceleration_errors_history)
+
+            self.q_history = np.array(self.q_history)
+            self.dq_history = np.array(self.dq_history)
+            self.ddq_history = np.array(self.ddq_history)
+            self.controls_history = np.array(self.controls_history)
+
+            self.plot_results(times, self.q_history, self.dq_history, self.ddq_history, self.controls_history)

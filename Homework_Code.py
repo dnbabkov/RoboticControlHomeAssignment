@@ -66,94 +66,102 @@ def desired_pose_func(center, radius, angular_velocity, t):
 
     return r_desired, dr_desired, ddr_desired, R_desired
 
+#def plot_results(times: np.ndarray, positions: np.ndarray, velocities: np.ndarray, controls: np.ndarray):
+#    """Plot and save simulation results."""
+#    # Joint positions plot
+#    plt.figure(figsize=(10, 6))
+#    for i in range(positions.shape[1]):
+#        plt.plot(times, positions[:, i], label=f'Joint {i+1}')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Joint Positions [rad]')
+#    plt.title('Joint Positions over Time')
+#    plt.legend()
+#    plt.grid(True)
+#    plt.savefig('logs/plots/Joint positions.png')
+#    plt.close()
+#    
+#    # Joint velocities plot
+#    plt.figure(figsize=(10, 6))
+#    for i in range(velocities.shape[1]):
+#        plt.plot(times, velocities[:, i], label=f'Joint {i+1}')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Joint Velocities [rad/s]')
+#    plt.title('Joint Velocities over Time')
+#    plt.legend()
+#    plt.grid(True)
+#    plt.savefig('logs/plots/Joint velocities.png')
+#    plt.close()
+#
+#    # Controls plot
+#    plt.figure(figsize=(10, 6))
+#    for i in range(controls.shape[1]):
+#        plt.plot(times, controls[:, i], label = f'Joint {i+1}')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Joint Controls')
+#    plt.title('Joint Controls over Time')
+#    plt.legend()
+#    plt.grid(True)
+#    plt.savefig('logs/plots/Controls.png')
+#    plt.close()
+#    
+#def plot_convergence(times: np.ndarray, pose_errors: np.ndarray, dpose_errors: np.ndarray, ddpose_errors: np.ndarray):
+#    # Joint positions plot
+#    plt.figure(figsize=(10, 6))
+#    for i in range(pose_errors.shape[1]):
+#        plt.plot(times, pose_errors[:, i], label=f'Pose error {i+1} (1-3 — position, 4-6 — angle)')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Errors')
+#    plt.title('Pose error over Time')
+#    plt.legend()
+#    plt.grid(True)
+#    plt.savefig('logs/plots/Pose errors.png')
+#    plt.close()
+#    
+#    # Joint velocities plot
+#    plt.figure(figsize=(10, 6))
+#    for i in range(dpose_errors.shape[1]):
+#        plt.plot(times, dpose_errors[:, i], label=f'Velocity error {i+1} (1-3 — tangential velocity, 4-6 — angular velocity)')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Errors')
+#    plt.title('Velocity errors over Time')
+#    plt.legend()
+#    plt.grid(True)
+#    plt.savefig('logs/plots/Endeffector velocity errors.png')
+#    plt.close()
+#
+#    # Controls plot
+#    plt.figure(figsize=(10, 6))
+#    for i in range(ddpose_errors.shape[1]):
+#        plt.plot(times, ddpose_errors[:, i], label = f'Acceleration error {i+1} (1-3 — tangential acceleration, 4-6 — angular acceleration)')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Errors')
+#    plt.title('Acceleration errors over Time')
+#    plt.legend()
+#    plt.grid(True)
+#    plt.savefig('logs/plots/Acceleration errors.png')
+#    plt.close()
 
-
-def plot_results(times: np.ndarray, positions: np.ndarray, velocities: np.ndarray, controls: np.ndarray):
-    """Plot and save simulation results."""
-    # Joint positions plot
-    plt.figure(figsize=(10, 6))
-    for i in range(positions.shape[1]):
-        plt.plot(times, positions[:, i], label=f'Joint {i+1}')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Joint Positions [rad]')
-    plt.title('Joint Positions over Time')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('logs/plots/Joint positions.png')
-    plt.close()
-    
-    # Joint velocities plot
-    plt.figure(figsize=(10, 6))
-    for i in range(velocities.shape[1]):
-        plt.plot(times, velocities[:, i], label=f'Joint {i+1}')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Joint Velocities [rad/s]')
-    plt.title('Joint Velocities over Time')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('logs/plots/Joint velocities.png')
-    plt.close()
-
-    # Controls plot
-    plt.figure(figsize=(10, 6))
-    for i in range(controls.shape[1]):
-        plt.plot(times, controls[:, i], label = f'Joint {i+1}')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Joint Controls')
-    plt.title('Joint Controls over Time')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('logs/plots/Controls.png')
-    plt.close()
-    
-def plot_convergence(times: np.ndarray, pose_errors: np.ndarray, dpose_errors: np.ndarray, ddpose_errors: np.ndarray):
-    # Joint positions plot
-    plt.figure(figsize=(10, 6))
-    for i in range(pose_errors.shape[1]):
-        plt.plot(times, pose_errors[:, i], label=f'Pose error {i+1} (1-3 — position, 4-6 — angle)')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Errors')
-    plt.title('Pose error over Time')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('logs/plots/Pose errors.png')
-    plt.close()
-    
-    # Joint velocities plot
-    plt.figure(figsize=(10, 6))
-    for i in range(dpose_errors.shape[1]):
-        plt.plot(times, dpose_errors[:, i], label=f'Velocity error {i+1} (1-3 — tangential velocity, 4-6 — angular velocity)')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Errors')
-    plt.title('Velocity errors over Time')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('logs/plots/Endeffector velocity errors.png')
-    plt.close()
-
-    # Controls plot
-    plt.figure(figsize=(10, 6))
-    for i in range(ddpose_errors.shape[1]):
-        plt.plot(times, ddpose_errors[:, i], label = f'Acceleration error {i+1} (1-3 — tangential acceleration, 4-6 — angular acceleration)')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Errors')
-    plt.title('Acceleration errors over Time')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('logs/plots/Acceleration errors.png')
-    plt.close()
-
-def error_calculation(q: np.ndarray, dq: np.ndarray, ddq, t: float, desired):
+def error_calculation(q: np.ndarray, dq: np.ndarray, ddq, t: float, desired, hard_code: bool):
     pin.computeAllTerms(model, data, q, dq)
     ee_frame_id = model.getFrameId("end_effector")
     frame = pin.LOCAL
 
-    
-    #circular trajectory
-    radius = 0.2 # circle radius
-    center = np.array([0.3, 0.3, 0.6]) # center cooridnates
-    angular_velocity = np.pi/2 # angular velocity
-    r_desired, dr_desired, ddr_desired, R_desired = desired_pose_func(center, radius, angular_velocity, t)
+    if hard_code:
+        #circular trajectory
+        radius = 0.2 # circle radius
+        center = np.array([0.3, 0.3, 0.6]) # center cooridnates
+        angular_velocity = np.pi/2 # angular velocity
+        r_desired, dr_desired, ddr_desired, R_desired = desired_pose_func(center, radius, angular_velocity, t)
+    else:
+        desired_position = desired['pos'] # [x_des, y_des, z_des]
+        desired_quaternion = desired['quat'] # [w_des, x_des, y_des, z_des]
+        desired_quaternion_pin = np.array([*desired_quaternion[1:], desired_quaternion[0]])
+        desired_pose = pin.XYZQUATToSE3(np.array([*desired_position,*desired_quaternion_pin]))
+
+        r_desired = desired_pose.translation
+        R_desired = desired_pose.rotation
+        dr_desired = np.zeros(6)
+        ddr_desired = np.zeros(6)
 
     J_l = pin.getFrameJacobian(model, data, ee_frame_id, frame) # local frame jacobian
     dJ_l = pin.getFrameJacobianTimeVariation(model, data, ee_frame_id, frame) # local frame jacobian time derivative
@@ -181,13 +189,24 @@ def error_calculation(q: np.ndarray, dq: np.ndarray, ddq, t: float, desired):
 
     return pose_error, dpose_error, ddpose_error
 
-def task_space_controller(q: np.ndarray, dq: np.ndarray, ddq, t: float, desired) -> np.ndarray:
+def task_space_controller(q: np.ndarray, dq: np.ndarray, ddq, t: float, desired, hard_code: bool) -> np.ndarray:
     
-    #circular trajectory
-    radius = 0.2 # circle radius
-    center = np.array([0.3, 0.3, 0.6]) # center cooridnates
-    angular_velocity = np.pi/2 # angular velocity
-    r_desired, dr_desired, ddr_desired, R_desired = desired_pose_func(center, radius, angular_velocity, t)
+    if hard_code:
+        #circular trajectory
+        radius = 0.2 # circle radius
+        center = np.array([0.3, 0.3, 0.6]) # center cooridnates
+        angular_velocity = np.pi/2 # angular velocity
+        r_desired, dr_desired, ddr_desired, R_desired = desired_pose_func(center, radius, angular_velocity, t)
+    else:
+        desired_position = desired['pos'] # [x_des, y_des, z_des]
+        desired_quaternion = desired['quat'] # [w_des, x_des, y_des, z_des]
+        desired_quaternion_pin = np.array([*desired_quaternion[1:], desired_quaternion[0]])
+        desired_pose = pin.XYZQUATToSE3(np.array([*desired_position,*desired_quaternion_pin]))
+
+        r_desired = desired_pose.translation
+        R_desired = desired_pose.rotation
+        dr_desired = np.zeros(6)
+        ddr_desired = np.zeros(6)
 
     pin.computeAllTerms(model, data, q, dq)
     pin.forwardKinematics(model, data, q, dq)
@@ -244,6 +263,7 @@ def main():
     sim = Simulator(
         xml_path="robots/universal_robots_ur5e/scene.xml",
         enable_task_space=True,
+        hard_code_trajectory=True,
         show_viewer=True,
         record_video=True,
         video_path="logs/videos/HomeAssignmentSimulationVideo.mp4",
@@ -252,57 +272,61 @@ def main():
         height=1080
     )
     sim.set_controller(task_space_controller)
+    sim.set_error_calc(error_calculation)
     sim.reset()
-    # Simulation parameters
-    t = 0
-    dt = sim.dt
-    time_limit = 20.0
 
-    # Data collection
-    times = []
-    positions = []
-    velocities = []
-    controls = []
-    pose_errors = []
-    dpose_errors = []
-    ddpose_errors = []
+    sim.run(time_limit=15.0)
 
-    while t < time_limit:
-        state = sim.get_state()
-        times.append(t)
-        positions.append(state['q'])
-        velocities.append(state['dq'])
+    ## Simulation parameters
+    #t = 0
+    #dt = sim.dt
+    #time_limit = 20.0
+#
+    ## Data collection
+    #times = []
+    #positions = []
+    #velocities = []
+    #controls = []
+    #pose_errors = []
+    #dpose_errors = []
+    #ddpose_errors = []
 
-        tau = task_space_controller(q=state['q'], dq=state['dq'], ddq=state['ddq'], t=t, desired=state['desired'])
-        controls.append(tau)
-        sim.step(tau)
-
-        if sim.record_video and len(sim.frames) < sim.fps * t:
-            sim.frames.append(sim._capture_frame())
-        t += dt
-
-        pose_error, dpose_error, ddpose_error = error_calculation(q=state['q'], dq=state['dq'], ddq=state['ddq'], t=t, desired=state['desired'])
-
-        pose_errors.append(pose_error)
-        dpose_errors.append(dpose_error)
-        ddpose_errors.append(ddpose_error)
-
-    # Process and save results
-    times = np.array(times)
-    positions = np.array(positions)
-    velocities = np.array(velocities)
-    controls = np.array(controls)
-
-    print(f"Simulation completed: {len(times)} steps")
-    print(f"Final joint positions: {positions[-1]}")
-
-    pose_errors = np.array(pose_errors)
-    dpose_errors = np.array(dpose_errors)
-    ddpose_errors = np.array(ddpose_errors)
-
-    sim._save_video()
-    plot_results(times, positions, velocities, controls)
-    plot_convergence(times, pose_errors, dpose_errors, ddpose_errors)
+    #while t < time_limit:
+    #    state = sim.get_state()
+    #    times.append(t)
+    #    positions.append(state['q'])
+    #    velocities.append(state['dq'])
+#
+    #    tau = task_space_controller(q=state['q'], dq=state['dq'], ddq=state['ddq'], t=t, desired=state['desired'])
+    #    controls.append(tau)
+    #    sim.step(tau)
+#
+    #    if sim.record_video and len(sim.frames) < sim.fps * t:
+    #        sim.frames.append(sim._capture_frame())
+    #    t += dt
+#
+    #    pose_error, dpose_error, ddpose_error = error_calculation(q=state['q'], dq=state['dq'], ddq=state['ddq'], t=t, desired=state['desired'])
+#
+    #    pose_errors.append(pose_error)
+    #    dpose_errors.append(dpose_error)
+    #    ddpose_errors.append(ddpose_error)
+#
+    ## Process and save results
+    #times = np.array(times)
+    #positions = np.array(positions)
+    #velocities = np.array(velocities)
+    #controls = np.array(controls)
+#
+    #print(f"Simulation completed: {len(times)} steps")
+    #print(f"Final joint positions: {positions[-1]}")
+#
+    #pose_errors = np.array(pose_errors)
+    #dpose_errors = np.array(dpose_errors)
+    #ddpose_errors = np.array(ddpose_errors)
+#
+    #sim._save_video()
+    #plot_results(times, positions, velocities, controls)
+    #plot_convergence(times, pose_errors, dpose_errors, ddpose_errors)
 
 if __name__ == "__main__":
     main()
